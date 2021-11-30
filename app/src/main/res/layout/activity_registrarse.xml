@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".RegistrarseActivity">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="282dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="66dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="66dp"
+        android:layout_marginBottom="61dp"
+        android:text="Formulario de Registro"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textNombreReg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/textNombreReg"
+        android:layout_width="253dp"
+        android:layout_height="52dp"
+        android:layout_marginBottom="19dp"
+        android:hint="Nombre"
+        android:inputType="text"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/textApellidoReg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <EditText
+        android:id="@+id/textApellidoReg"
+        android:layout_width="250dp"
+        android:layout_height="53dp"
+        android:layout_marginBottom="16dp"
+        android:hint="Apellido"
+        android:inputType="text"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTxtEmailReg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textNombreReg" />
+
+    <EditText
+        android:id="@+id/editTxtEmailReg"
+        android:layout_width="250dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="30dp"
+        android:ems="10"
+        android:hint="Correo electrónico"
+        android:inputType="textEmailAddress"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/switchAdmin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textApellidoReg" />
+
+    <Switch
+        android:id="@+id/switchAdmin"
+        android:layout_width="134dp"
+        android:layout_height="57dp"
+        android:layout_marginBottom="92dp"
+        android:text="Admin"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEnviarReg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTxtEmailReg" />
+
+    <Button
+        android:id="@+id/buttonEnviarReg"
+        android:layout_width="117dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="171dp"
+        android:text="Enviar"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchAdmin" />
+</androidx.constraintlayout.widget.ConstraintLayout>
