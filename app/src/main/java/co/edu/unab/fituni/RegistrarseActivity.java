@@ -17,7 +17,6 @@ import java.util.Locale;
 
 import co.edu.unab.fituni.modelo.Persona;
 import co.edu.unab.fituni.network.MyBackendAPIClient;
-import co.edu.unab.fituni.pojo.Authorization;
 import co.edu.unab.fituni.repository.PersonaRepository;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -35,8 +34,24 @@ public class RegistrarseActivity extends AppCompatActivity {
         EditText txtApellido = findViewById(R.id.textApellidoReg);
         EditText editEmail = findViewById(R.id.editTxtEmailReg);
         Switch swAdmin = findViewById(R.id.switchAdmin);
-
+        /*EditText txtUserAdmin = findViewById(R.id.editTextUserAdmin);
+        EditText txtPassAdmin = findViewById(R.id.editTextPassAdmin);
+*/
         Button botonEnviar = findViewById(R.id.buttonEnviarReg);
+
+        /*swAdmin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(swAdmin.isChecked()){
+                    txtUserAdmin.setVisibility(View.VISIBLE);
+                    txtPassAdmin.setVisibility(View.VISIBLE);
+                }
+                else{
+                    txtUserAdmin.setVisibility(View.GONE);
+                    txtPassAdmin.setVisibility(View.GONE);
+                }
+            }
+        });*/
 
         botonEnviar.setOnClickListener(new View.OnClickListener() {
             @Override

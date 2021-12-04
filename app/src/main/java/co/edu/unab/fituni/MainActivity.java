@@ -16,6 +16,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import co.edu.unab.fituni.modelo.IndiceMasaMuscular;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy KK:mm:ss a", Locale.US);
     static String correoPersona, bearerToken;
     static Persona userPersona;
+    Usuario usuarioAccess = new Usuario();
+    Authorization au;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,28 +53,193 @@ public class MainActivity extends AppCompatActivity {
 
         //ATENCIÓN: creo las credenciales usuario y contrasenia que deben existir previamente en la tabla usuario
         // de la base de datos para poder obtener token
-        Usuario usuario = new Usuario();
-        usuario.setUsername("admin");
-        usuario.setPassword("admin");
-        Call<Authorization> auth = authRepo.getAuthorization(usuario);
-        auth.enqueue(new Callback<Authorization>() {
+        //Usuario usuario = new Usuario();
+        usuarioAccess.setUsername("admin");
+        usuarioAccess.setPassword("admin");
+        new Thread(new Runnable(){ //permite ejecutar el execute() si interrupciones de network
+            @Override
+            public void run() {
+                try {
+        Call<List<Authorization>> login = authRepo.login(usuarioAccess.getUsername(), usuarioAccess.getPassword()); //verifica para mirar si se requiere crear usuario o existe ya
+        Response<List<Authorization>> respuesta = login.execute();
+        if(respuesta.body().isEmpty()){ //si no se ha agregado las credenciales en la tabla usuario para obtener token
+            Call<Authorization> create = authRepo.createAdmin(usuarioAccess); //crea usuario y lo agrega a la base de datos
+            create.enqueue(new Callback<Authorization>() {
+                @Override
+                public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                    au = response.body();
+                    usuarioAccess.setUsername(au.getUser());
+                    usuarioAccess.setPassword(au.getPass());
+                    Log.d("Exito", "Se creo usuario para obtener token");
+
+                    Call<Authorization> auth = authRepo.getAuthorization(usuarioAccess); //obtiene token
+                    auth.enqueue(new Callback<Authorization>() {
+                        @Override
+                        public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                            bearerToken = response.body().getToken(); //obtiene token Bearer
+
+                            //guardo en cache el token para para solicitarlo desde otras actividades
+                            SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("token", bearerToken); //pares de valores
+                            editor.commit(); //aqui lo guarda ya en cache
+                            Log.d("Exito", "Se obtuvo corectamente el Token " + bearerToken);
+                        }
+
+                        @Override
+                        public void onFailure(Call<Authorization> call, Throwable t) {
+                            Log.d("Fallo", "Fallo obtencion del Bearer Token", t);
+                        }
+                    });
+
+                }
+
+                @Override
+                public void onFailure(Call<Authorization> call, Throwable t) {
+                    Log.d("Fallo", "No se pudo autenticar");
+                }
+            });
+        } else { //si ya existen credenciales es decir ya esta autorizado para obtener Token
+            Call<Authorization> auth = authRepo.getAuthorization(usuarioAccess); //obtiene token
+            auth.enqueue(new Callback<Authorization>() {
+                @Override
+                public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                    if (response.isSuccessful()) {
+                        bearerToken = response.body().getToken(); //obtiene token Bearer
+
+                        //guardo en cache el token para para solicitarlo desde otras actividades
+                        SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("token", bearerToken); //pares de valores
+                        editor.commit(); //aqui lo guarda ya en cache
+                        Log.d("Exito", "Se obtuvo corectamente el Token " + bearerToken);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Authorization> call, Throwable t) {
+                    Log.d("Fallo", "Fallo obtencion del Bearer Token", t);
+                }
+            });
+        }
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }).start();
+        /*//forma asyncrona
+        login.enqueue(new Callback<List<Authorization>>() {
+            @Override
+            public void onResponse(Call<List<Authorization>> call, Response<List<Authorization>> response) {
+                if(response.isSuccessful()) { //si usuario no esta logueado o no existe en base de datos para poder obtener token
+                    if (response.body() == null) {
+                        Call<Authorization> create = authRepo.createAdmin(usuarioAccess); //crea usuario
+                        create.enqueue(new Callback<Authorization>() {
+                            @Override
+                            public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                                au = response.body();
+                                usuarioAccess.setUsername(au.getUser());
+                                usuarioAccess.setPassword(au.getPass());
+                                Log.d("Exito", "Se creo usuario para obtener token");
+
+                                Call<Authorization> auth = authRepo.getAuthorization(usuarioAccess); //obtiene token
+                                auth.enqueue(new Callback<Authorization>() {
+                                    @Override
+                                    public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                                        bearerToken = response.body().getToken(); //obtiene token Bearer
+
+                                        //guardo en cache el token para para solicitarlo desde otras actividades
+                                        SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putString("token", bearerToken); //pares de valores
+                                        editor.commit(); //aqui lo guarda ya en cache
+                                        Log.d("Exito", "Se obtuvo corectamente el Token " + bearerToken);
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Authorization> call, Throwable t) {
+                                        Log.d("Fallo", "Fallo obtencion del Bearer Token", t);
+                                    }
+                                });
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<Authorization> call, Throwable t) {
+                                Log.d("Fallo", "No se pudo obtener autenticar");
+                            }
+                        });
+                    } else { //si ya existen credenciales es decir ya esta autorizado para obtener Token
+                        Call<Authorization> auth = authRepo.getAuthorization(usuarioAccess); //obtiene token
+                        auth.enqueue(new Callback<Authorization>() {
+                            @Override
+                            public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                                if (response.isSuccessful()) {
+                                    bearerToken = response.body().getToken(); //obtiene token Bearer
+
+                                    //guardo en cache el token para para solicitarlo desde otras actividades
+                                    SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("token", bearerToken); //pares de valores
+                                    editor.commit(); //aqui lo guarda ya en cache
+                                    Log.d("Exito", "Se obtuvo corectamente el Token " + bearerToken);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Authorization> call, Throwable t) {
+                                Log.d("Fallo", "Fallo obtencion del Bearer Token", t);
+                            }
+                        });
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Authorization>> call, Throwable t) {
+                Log.d("Fallo", "No se pudo comprobar login usuario");
+            }
+        });*///fin forma asyncrona
+
+        /*Call<Authorization> create = authRepo.createAdmin(usuario);
+        create.enqueue(new Callback<Authorization>() {
             @Override
             public void onResponse(Call<Authorization> call, Response<Authorization> response) {
-                bearerToken = response.body().getToken(); //obtiene token Bearer
+                au = response.body();
+                usuarioAccess.setUsername(au.getUser());
+                usuarioAccess.setPassword(au.getPass());
 
-                //guardo en cache el token para para solicitarlo desde otras actividades
-                SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString("token", bearerToken); //pares de valores
-                editor.commit(); //aqui lo guarda ya en cache
-                Log.d("Exito", "Se obtuvo corectamente el Token "+bearerToken);
+
+                Call<Authorization> auth = authRepo.getAuthorization(usuarioAccess);
+                auth.enqueue(new Callback<Authorization>() {
+                    @Override
+                    public void onResponse(Call<Authorization> call, Response<Authorization> response) {
+                        bearerToken = response.body().getToken(); //obtiene token Bearer
+
+                        //guardo en cache el token para para solicitarlo desde otras actividades
+                        SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("token", bearerToken); //pares de valores
+                        editor.commit(); //aqui lo guarda ya en cache
+                        Log.d("Exito", "Se obtuvo corectamente el Token "+bearerToken);
+                    }
+
+                    @Override
+                    public void onFailure(Call<Authorization> call, Throwable t) {
+                        Log.d("Fallo", "Fallo obtencion del Bearer Token", t);
+                    }
+                });
+
             }
 
             @Override
             public void onFailure(Call<Authorization> call, Throwable t) {
-                Log.d("Fallo", "Fallo obtencion del Bearer Token", t);
+                Log.d("Fallo", "No se pudo obtener autenticar");
             }
-        });
+        });*/
+        //Call<Authorization> auth = authRepo.getAuthorization(usuario);
+
 
         listaReg = new ArrayList<>(); //crea lista donde se añadiran los registros
         estaturaText = (EditText) findViewById(R.id.editTextNumber);
@@ -126,14 +294,14 @@ public class MainActivity extends AppCompatActivity {
         botonRegistros.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(userPersona!=null) { //verifica si existe un usuario logueado antes de mostrar registros
+                //if(userPersona!=null) { //verifica si existe un usuario logueado antes de mostrar registros
                     Intent intent = new Intent(MainActivity.this, RegistroActivity.class);
                     intent.putParcelableArrayListExtra("datosLista", listaReg);
                     //intent.putExtras(savedInstanceState);
                     startActivity(intent);
-                }
-                else
-                    Log.d("Fallo", "Debe inciar sesion antes para consultar registros");
+                //}
+                //else
+                //    Log.d("Fallo", "Debe inciar sesion antes para consultar registros");
             }
         });
 
@@ -162,11 +330,39 @@ public class MainActivity extends AppCompatActivity {
                 personaSesion.enqueue(new Callback<Persona>() {
                     @Override
                     public void onResponse(Call<Persona> call, Response<Persona> response) {
-                        userPersona = response.body();
-                        Log.d("Exito", "Usuario con sesión activa");
-                        campoEmail.setEnabled(false);
-                        imageButtonSesion.setVisibility(View.GONE);
-                        imageButtonSalir.setVisibility(View.VISIBLE);
+                        if(response.body()!=null) { //comprueba que si exista la cuenta del usuario ingresada
+                            userPersona = response.body();
+                            Log.d("Exito", "Usuario con sesión activa");
+                            campoEmail.setEnabled(false);
+                            imageButtonSesion.setVisibility(View.GONE);
+                            imageButtonSalir.setVisibility(View.VISIBLE);
+
+                            if(listaReg!=null){ //si usuario registro datos sin haberse logueado primero
+                                List<IndiceMasaMuscular> listaFull=new ArrayList<>();
+                                for(IndiceMasaMuscular imc : listaReg) {//a cada registro de la lista
+                                    imc.setPersona(userPersona); //agrega campo Persona a los registros IMC
+                                    listaFull.add(imc);
+                                }
+                                listaReg=new ArrayList<>(); //limpia registros antes de inicio de sesion
+                                IndiceMasaMuscularRepository imcRepo = MyBackendAPIClient.getRetrofit().create(IndiceMasaMuscularRepository.class);
+                                Call<List<IndiceMasaMuscular>> createAllList = imcRepo.createListaRegistro(listaFull, bearerToken); //agrega a registro del usuario la lista de registros de imc que se recopilo antes de iniciar sesion
+                                createAllList.enqueue(new Callback<List<IndiceMasaMuscular>>() {
+                                    @Override
+                                    public void onResponse(Call<List<IndiceMasaMuscular>> call, Response<List<IndiceMasaMuscular>> response) {
+                                        Log.d("Exito", "Se agrego lista de registros imc de la persona");
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<List<IndiceMasaMuscular>> call, Throwable t) {
+                                        Log.d("Fallo", "No se pudo agregar lista de registros");
+                                    }
+                                });
+                            }
+                        }
+                        else{ //si no existe el correo ingresa
+                            campoEmail.setText("");
+                            Toast.makeText(MainActivity.this, "Correo no esta registrado!!!, por favor registrese", Toast.LENGTH_SHORT);
+                        }
                     }
 
                     @Override
@@ -183,7 +379,7 @@ public class MainActivity extends AppCompatActivity {
         imageButtonSalir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                correoPersona=""; //reinicia correo del usuario a vacio
+                correoPersona=null; //reinicia correo del usuario a vacio
                 userPersona=null; //reincia usuario a null
                 campoEmail.setEnabled(true);
                 campoEmail.setText("");
@@ -214,22 +410,26 @@ public class MainActivity extends AppCompatActivity {
         //} catch (ParseException e) {
          //   e.printStackTrace();
         //}
-        IndiceMasaMuscular datosImc = new IndiceMasaMuscular(estatura, peso, imc, fecha, userPersona);
-        IndiceMasaMuscularRepository imcRepo = MyBackendAPIClient.getRetrofit().create(IndiceMasaMuscularRepository.class);
-        Call<IndiceMasaMuscular> registro = imcRepo.createRegistro(datosImc, bearerToken); //agrega registro a la base de datos
-        registro.enqueue(new Callback<IndiceMasaMuscular>() {
-            @Override
-            public void onResponse(Call<IndiceMasaMuscular> call, Response<IndiceMasaMuscular> response) {
-                Log.d("Exito", "se agrego registro de imc a la base de datos");
-            }
+        if(correoPersona!=null) {
+            IndiceMasaMuscular datosImc = new IndiceMasaMuscular(estatura, peso, imc, fecha, userPersona);
+            IndiceMasaMuscularRepository imcRepo = MyBackendAPIClient.getRetrofit().create(IndiceMasaMuscularRepository.class);
+            Call<IndiceMasaMuscular> registro = imcRepo.createRegistro(datosImc, bearerToken); //agrega registro a la base de datos
+            registro.enqueue(new Callback<IndiceMasaMuscular>() {
+                @Override
+                public void onResponse(Call<IndiceMasaMuscular> call, Response<IndiceMasaMuscular> response) {
+                    Log.d("Exito", "se agrego registro de imc a la base de datos");
+                }
 
-            @Override
-            public void onFailure(Call<IndiceMasaMuscular> call, Throwable t) {
-                Log.d("Fallo", "no se agrego registro de imc a la base de datos", t);
-            }
-        });
-        listaReg.add(new IndiceMasaMuscular(estatura, peso, imc , fecha, userPersona)); //añade registro nuevo a lista
-    }
+                @Override
+                public void onFailure(Call<IndiceMasaMuscular> call, Throwable t) {
+                    Log.d("Fallo", "no se agrego registro de imc a la base de datos", t);
+                }
+            });
+        }
+        else if(correoPersona==null) {//si no se ha logueado
+            listaReg.add(new IndiceMasaMuscular(estatura, peso, imc , fecha, userPersona)); //añade registro nuevo a lista
+            Log.d("Exito", "reg imc a lista");}
+        }
 
     public static Double getImc() {
         return imc;

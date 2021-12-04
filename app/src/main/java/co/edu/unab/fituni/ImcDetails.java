@@ -52,7 +52,10 @@ public class ImcDetails extends AppCompatActivity {
         else if(imc>=30.0)
             imagen.setImageResource(R.drawable.gordoicon);
 
-        txtFecha.setText(String.format("FECHA:%n%s%nUsuario: %s", registro.getFecha(), registro.getPersona().getEmail()));
+        if(MainActivity.getCorreoPersona()!=null) //solo muestra correo de usuario si se ha iniciado session
+            txtFecha.setText(String.format("FECHA:%n%s%nUsuario: %s", registro.getFecha(), registro.getPersona().getEmail()));
+        else
+            txtFecha.setText(String.format("FECHA:%n%s%nUsuario: %s", registro.getFecha(), "inicie sesión para agregarlos a su registro"));
         txtImc.setText(String.format("IMC:%n%.1f", registro.getImc()));
         txtPeso.setText(String.format("PESO:%n%.1f Kg", registro.getPeso()));
         txtEstatura.setText(String.format("ESTATURA:%n%s Cm", registro.getEstatura()*100 ));

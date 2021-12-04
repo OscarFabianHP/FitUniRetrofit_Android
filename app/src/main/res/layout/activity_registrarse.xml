@@ -8,12 +8,12 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="282dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="66dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="66dp"
-        android:layout_marginBottom="61dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="29dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginBottom="22dp"
         android:text="Formulario de Registro"
         android:textAlignment="center"
         android:textSize="24sp"
@@ -25,9 +25,11 @@
 
     <EditText
         android:id="@+id/textNombreReg"
-        android:layout_width="253dp"
-        android:layout_height="52dp"
-        android:layout_marginBottom="19dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="67dp"
+        android:layout_marginEnd="67dp"
+        android:layout_marginBottom="29dp"
         android:hint="Nombre"
         android:inputType="text"
         android:textSize="24sp"
@@ -38,22 +40,24 @@
 
     <EditText
         android:id="@+id/textApellidoReg"
-        android:layout_width="250dp"
-        android:layout_height="53dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="32dp"
         android:hint="Apellido"
         android:inputType="text"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/editTxtEmailReg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/editTxtEmailReg"
+        app:layout_constraintStart_toStartOf="@+id/textNombreReg"
         app:layout_constraintTop_toBottomOf="@+id/textNombreReg" />
 
     <EditText
         android:id="@+id/editTxtEmailReg"
-        android:layout_width="250dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="30dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginEnd="70dp"
+        android:layout_marginBottom="23dp"
         android:ems="10"
         android:hint="Correo electrónico"
         android:inputType="textEmailAddress"
@@ -65,26 +69,72 @@
 
     <Switch
         android:id="@+id/switchAdmin"
-        android:layout_width="134dp"
-        android:layout_height="57dp"
-        android:layout_marginBottom="92dp"
+        android:layout_width="108dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="51dp"
+        android:layout_marginEnd="51dp"
+        android:layout_marginBottom="21dp"
         android:text="Admin"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/buttonEnviarReg"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/imageButtonCode"
+        app:layout_constraintEnd_toEndOf="@+id/imageButtonCode"
+        app:layout_constraintStart_toStartOf="@+id/editTextCodeAdmin"
         app:layout_constraintTop_toBottomOf="@+id/editTxtEmailReg" />
 
     <Button
         android:id="@+id/buttonEnviarReg"
-        android:layout_width="117dp"
-        android:layout_height="60dp"
-        android:layout_marginBottom="171dp"
+        android:layout_width="130dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="100dp"
         android:text="Enviar"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switchAdmin" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextPassAdmin" />
+
+    <EditText
+        android:id="@+id/editTextPassAdmin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:ems="10"
+        android:hint="Password by Admin"
+        android:inputType="textPersonName"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/buttonEnviarReg"
+        app:layout_constraintStart_toStartOf="@+id/editTextCodeAdmin"
+        app:layout_constraintTop_toBottomOf="@+id/imageButtonCode" />
+
+    <EditText
+        android:id="@+id/editTextCodeAdmin"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginEnd="22dp"
+        android:ems="10"
+        android:hint="Codigo"
+        android:inputType="textPersonName"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/imageButtonCode"
+        app:layout_constraintEnd_toStartOf="@+id/imageButtonCode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageButtonCode" />
+
+    <ImageButton
+        android:id="@+id/imageButtonCode"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="101dp"
+        android:layout_marginBottom="25dp"
+        android:contentDescription="Boton enviar codigo"
+        android:scaleType="centerInside"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/editTextPassAdmin"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/editTextCodeAdmin"
+        app:layout_constraintTop_toBottomOf="@+id/switchAdmin"
+        app:srcCompat="@drawable/paper_plane" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

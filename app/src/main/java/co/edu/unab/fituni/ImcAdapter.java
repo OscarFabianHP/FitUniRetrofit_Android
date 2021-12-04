@@ -31,8 +31,8 @@ public class ImcAdapter extends RecyclerView.Adapter<ImcViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ImcViewHolder holder, int position) {
         IndiceMasaMuscular imcReg = list.get(position); //obtiene elemnto de la lista de registros
-
-        holder.getTxtUser().setText(String.format("USER:%n%s", imcReg.getPersona().getEmail()));
+        if(MainActivity.getCorreoPersona()!=null) //solo pone el correo de persona si se ha iniciado sesion
+            holder.getTxtUser().setText(String.format("USER:%n%s", imcReg.getPersona().getEmail()));
         holder.getTxtImcReg().setText(String.format("IMC:%n%.1f", imcReg.getImc()));
         holder.getTxtFechaReg().setText(String.format("FECHA:%n%s", imcReg.getFecha()));
         double imc = imcReg.getImc(); //obtinen el IMC de la lista

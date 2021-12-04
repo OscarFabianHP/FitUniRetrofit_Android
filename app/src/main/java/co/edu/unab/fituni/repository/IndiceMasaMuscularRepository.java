@@ -32,6 +32,10 @@ public interface IndiceMasaMuscularRepository {
     Call<IndiceMasaMuscular> createRegistro(@Body IndiceMasaMuscular registro, @Header("Authorization") String token);
 
     @Headers("Cache-Control: no-cache")
+    @POST("registros/list")
+    Call<List<IndiceMasaMuscular>> createListaRegistro(@Body List<IndiceMasaMuscular> registros, @Header("Authorization") String token);
+
+    @Headers("Cache-Control: no-cache")
     @PUT("registros/{id}")
     Call<IndiceMasaMuscular> updateRegistro(@Path("id") Long id, @Body IndiceMasaMuscular registro, @Header("Authorization") String token);
 

@@ -32,39 +32,46 @@ public class RegistroActivity extends AppCompatActivity {
 
         IndiceMasaMuscularRepository imcRepo = MyBackendAPIClient.getRetrofit().create(IndiceMasaMuscularRepository.class);
 
-        if(MainActivity.getUserPersona().getEsAdmin()==true){
-            Call<List<IndiceMasaMuscular>> registrosPersonas = imcRepo.readAllRegistros(MainActivity.getBearerToken());
-            registrosPersonas.enqueue(new Callback<List<IndiceMasaMuscular>>() {
-                @Override
-                public void onResponse(Call<List<IndiceMasaMuscular>> call, Response<List<IndiceMasaMuscular>> response) {
-                    list = response.body();
-                    Log.d("Exito", "GET All IMC Personas se ejecuto exitosamente");
-                    if(registrosPersonas.isExecuted())
-                        mostrarRegistros();
-                }
-
-                @Override
-                public void onFailure(Call<List<IndiceMasaMuscular>> call, Throwable t) {
-                    Log.d("Fallo", "GET All IMC Personas falló", t);
-                }
-            });
+        if(MainActivity.getCorreoPersona()==null){ //si aun no se ha inicia sesion
+            List<IndiceMasaMuscular> registros = getIntent().getParcelableArrayListExtra("datosLista");
+            list = registros; //copia la lista de registros actuales a list
+            mostrarRegistros(); //muestra la lista de registros del momento
         }
-        else{
-            Call<List<IndiceMasaMuscular>> registrosPersona = imcRepo.readAllRegistrosPersona(MainActivity.getUserPersona().getId(), MainActivity.getBearerToken());
-            registrosPersona.enqueue(new Callback<List<IndiceMasaMuscular>>() {
-                @Override
-                public void onResponse(Call<List<IndiceMasaMuscular>> call, Response<List<IndiceMasaMuscular>> response) {
-                    list = response.body();
-                    Log.d("Exito", "GET All IMC de Persona se ejecuto exitosamente");
-                    if(registrosPersona.isExecuted())
-                        mostrarRegistros();
-                }
+        else { //si ya ha iniciado sesion
 
-                @Override
-                public void onFailure(Call<List<IndiceMasaMuscular>> call, Throwable t) {
-                    Log.d("Fallo", "GET All IMC de Persona falló", t);
-                }
-            });
+            if (MainActivity.getUserPersona().getEsAdmin() == true) { //si el usuario es administrador
+                Call<List<IndiceMasaMuscular>> registrosPersonas = imcRepo.readAllRegistros(MainActivity.getBearerToken()); //obtiene todos los registros de todos los usuarios
+                registrosPersonas.enqueue(new Callback<List<IndiceMasaMuscular>>() {
+                    @Override
+                    public void onResponse(Call<List<IndiceMasaMuscular>> call, Response<List<IndiceMasaMuscular>> response) {
+                        list = response.body();
+                        Log.d("Exito", "GET All IMC Personas se ejecuto exitosamente");
+                        if (registrosPersonas.isExecuted())
+                            mostrarRegistros(); //muestra todos los registros
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<IndiceMasaMuscular>> call, Throwable t) {
+                        Log.d("Fallo", "GET All IMC Personas falló", t);
+                    }
+                });
+            } else { //si no es administrador
+                Call<List<IndiceMasaMuscular>> registrosPersona = imcRepo.readAllRegistrosPersona(MainActivity.getUserPersona().getId(), MainActivity.getBearerToken());//obtiene registro del usuario
+                registrosPersona.enqueue(new Callback<List<IndiceMasaMuscular>>() {
+                    @Override
+                    public void onResponse(Call<List<IndiceMasaMuscular>> call, Response<List<IndiceMasaMuscular>> response) {
+                        list = response.body();
+                        Log.d("Exito", "GET All IMC de Persona se ejecuto exitosamente");
+                        if (registrosPersona.isExecuted())
+                            mostrarRegistros();
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<IndiceMasaMuscular>> call, Throwable t) {
+                        Log.d("Fallo", "GET All IMC de Persona falló", t);
+                    }
+                });
+            }
         }
         //ArrayList<IndiceMasaMuscular> list = getIntent().getParcelableArrayListExtra("datosLista"); //obtiene lista de registro desde MainActivity
 
